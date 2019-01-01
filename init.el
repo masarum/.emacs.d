@@ -11,6 +11,10 @@
 (use-package zenburn-theme
   :init (load-theme 'zenburn t)) 
 
+(use-package smart-mode-line
+  :config
+  (sml/setup))
+
 (use-package which-key
   :delight
   :init (which-key-mode))
@@ -118,6 +122,14 @@
 (setq scroll-margin 12
       scroll-conservatively 1
       mouse-wheel-scroll-amount '(1))
+
+(setq ring-bell-function
+      (lambda ()
+        (let ((orig-fg (face-foreground 'mode-line)))
+          (set-face-foreground 'mode-line "#F2804F")
+          (run-with-idle-timer 0.1 nil
+                               (lambda (fg) (set-face-foreground 'mode-line fg))
+                               orig-fg))))
 
 (setq show-paren-delay 0)
 (show-paren-mode 1)
