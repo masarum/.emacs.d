@@ -74,12 +74,13 @@
   :after counsel projectile
   :config (counsel-projectile-mode))
 
+(use-package column-enforce-mode
+  :init (global-column-enforce-mode t))
+
 (use-package highlight-indent-guides
+  :delight
   :custom (highlight-indent-guides-method 'character)
   :hook (clojure-mode . highlight-indent-guides-mode))
-
-(use-package column-enforce-mode
-  :hook (clojure-mode . column-enforce-mode))
 
 (use-package expand-region
   :bind
@@ -93,6 +94,7 @@
   :init (global-aggressive-indent-mode 1))
 
 (use-package whitespace-cleanup-mode
+  :delight
   :init (global-whitespace-cleanup-mode))
 
 (use-package smartparens
@@ -133,7 +135,7 @@
 
 (use-package clojure-mode
   :hook
-  (clojure-mode . linum-mode))
+  (clojure-mode . display-line-numbers-mode))
 
 (use-package cider
   :delight " cider"
@@ -147,13 +149,12 @@
   (clojure-keyword-face ((t (:inherit font-lock-constant-face :slant italic)))))
 
 (use-package clj-refactor
+  :delight
   :hook
   (clojure-mode . clj-refactor-mode)
   :config
   (yas-minor-mode 1)
   (cljr-add-keybindings-with-prefix "C-c f"))
-
-(setq linum-format "%d ")
 
 (toggle-scroll-bar -1)
 (setq scroll-margin 12
@@ -169,6 +170,7 @@
                                orig-fg))))
 
 (setq whitespace-style '(face trailing))
+(whitespace-mode 1)
 (setq show-paren-delay 0)
 (show-paren-mode 1)
 (delete-selection-mode 1)
