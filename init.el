@@ -13,6 +13,7 @@
 
 (use-package smart-mode-line
   :config
+  (column-number-mode t)
   (sml/setup))
 
 (use-package popwin
