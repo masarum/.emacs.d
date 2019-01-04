@@ -199,4 +199,7 @@
 (show-paren-mode 1)
 (delete-selection-mode 1)
 
+(global-unset-key "\C-z")
+(global-set-key "\C-z" 'advertised-undo)
+
 (setq custom-file "~/.emacs.d/custom.el")
