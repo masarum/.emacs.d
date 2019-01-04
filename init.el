@@ -1,12 +1,17 @@
 (require 'package)
 (add-to-list 'package-archives
-	     '("melpa" . "https://melpa.org/packages/"))
+	     '("melpa" . "https://melpa.org/packages/") t)
+(add-to-list 'package-archives
+	     '("melpa-stable" . "https://stable.melpa.org/packages/") t)
 (package-initialize)
 
 (require 'use-package)
 (setq use-package-always-ensure t)
 
-(use-package delight)
+(use-package delight
+  :config
+  (delight '((eldoc-mode nil "eldoc")
+	     (whitespace-mode nil "whitespace"))))
 
 (use-package zenburn-theme
   :init (load-theme 'zenburn t))
@@ -18,13 +23,13 @@
 
 (use-package popwin
   :config
-  (popwin-mode 1)
   (push '("*cider-error*"
-	  :dedicated t :position bottom :stick t :noselect nil :height 0.4)
+	  :dedicated t :position bottom :stick t :noselect t :height 0.4)
 	popwin:special-display-config)
   (push '("*cider-doc*"
-	  :dedicated t :position bottom :stick t :noselect nil :height 0.4)
-	popwin:special-display-config))
+	  :dedicated t :position bottom :stick t :noselect t :height 0.4)
+	popwin:special-display-config)
+  (popwin-mode 1))
 
 (use-package which-key
   :delight
@@ -57,7 +62,7 @@
   :delight
   :init (global-company-mode)
   :custom
-  (company-idle-delay 0.05)
+  (company-idle-delay 0.1)
   (company-minimum-prefix-length 2)
   (company-selection-wrap-around t))
 
@@ -75,6 +80,7 @@
   :config (counsel-projectile-mode))
 
 (use-package column-enforce-mode
+  :delight
   :init (global-column-enforce-mode t))
 
 (use-package highlight-indent-guides
@@ -88,9 +94,11 @@
    ("C--" . 'er/contract-region)))
 
 (use-package hungry-delete
+  :delight
   :init (global-hungry-delete-mode))
 
 (use-package aggressive-indent
+  :delight
   :init (global-aggressive-indent-mode 1))
 
 (use-package whitespace-cleanup-mode
@@ -98,6 +106,7 @@
   :init (global-whitespace-cleanup-mode))
 
 (use-package smartparens
+  :delight
   :init (smartparens-global-mode t)
   :hook (clojure-mode . turn-on-smartparens-strict-mode)
   :config (require 'smartparens-config)
@@ -138,9 +147,11 @@
   (clojure-mode . display-line-numbers-mode))
 
 (use-package cider
+  ;;:pin melpa-stable
   :delight " cider"
   :hook
   ((cider-repl-mode cider-mode) . cider-company-enable-fuzzy-completion)
+  (cider-mode . eldoc-mode)
   :custom
   (cider-repl-use-pretty-print t)
   (cider-font-lock-dynamically '(macro core function var))
@@ -148,13 +159,26 @@
   :custom-face
   (clojure-keyword-face ((t (:inherit font-lock-constant-face :slant italic)))))
 
+(use-package yasnippet
+  :delight (yas-minor-mode)
+  :config (yas-minor-mode 1))
+
 (use-package clj-refactor
   :delight
   :hook
   (clojure-mode . clj-refactor-mode)
   :config
-  (yas-minor-mode 1)
   (cljr-add-keybindings-with-prefix "C-c f"))
+
+(use-package flycheck-clojure
+  :init
+  (global-flycheck-mode)
+  :config
+  (flycheck-clojure-setup))
+
+(use-package flycheck-pos-tip
+  :custom
+  (flycheck-display-errors-function #'flycheck-pos-tip-error-messages))
 
 (toggle-scroll-bar -1)
 (setq scroll-margin 12
