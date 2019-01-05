@@ -157,25 +157,24 @@
 (use-package lsp-ui)
 
 (use-package flycheck-pos-tip
-  :custom
-  (flycheck-display-errors-function #'flycheck-pos-tip-error-messages))
+  :custom (flycheck-display-errors-function #'flycheck-pos-tip-error-messages))
 
 ;; Clojure
 
 (use-package clojure-mode
-  :hook
-  (clojure-mode . display-line-numbers-mode))
+  :hook (clojure-mode . display-line-numbers-mode))
 
 (use-package cider
   ;;:pin melpa-stable
   :delight " cider"
-  :hook
-  ((cider-repl-mode cider-mode) . cider-company-enable-fuzzy-completion)
-  (cider-mode . eldoc-mode)
   :custom
   (cider-repl-use-pretty-print t)
   (cider-font-lock-dynamically '(macro core function var))
   (cider-overlays-use-font-lock t)
+  (cider-prompt-save-file-on-load 'always-save)
+  :hook
+  ((cider-repl-mode cider-mode) . cider-company-enable-fuzzy-completion)
+  (cider-mode . eldoc-mode)
   :custom-face
   (clojure-keyword-face ((t (:inherit font-lock-constant-face :slant italic)))))
 
@@ -185,10 +184,9 @@
 
 (use-package clj-refactor
   :delight
-  :hook
-  (clojure-mode . clj-refactor-mode)
-  :config
-  (cljr-add-keybindings-with-prefix "C-c f"))
+  :custom (cljr-warn-on-eval nil)
+  :config (cljr-add-keybindings-with-prefix "C-c f")
+  :hook (clojure-mode . clj-refactor-mode))
 
 (use-package flycheck-clojure
   :init
