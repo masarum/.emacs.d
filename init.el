@@ -3,7 +3,14 @@
 	     '("melpa" . "https://melpa.org/packages/") t)
 (add-to-list 'package-archives
 	     '("melpa-stable" . "https://stable.melpa.org/packages/") t)
+
 (package-initialize)
+
+(unless package-archive-contents
+  (package-refresh-contents))
+
+(unless (package-installed-p 'use-package)
+  (package-install 'use-package))
 
 (require 'use-package)
 (setq use-package-always-ensure t)
@@ -62,8 +69,9 @@
   :delight
   :init (global-company-mode)
   :custom
-  (company-idle-delay 0.1)
-  (company-minimum-prefix-length 2)
+  (company-idle-delay 0.2)
+  (company-minimum-prefix-length 1)
+  (company-tooltip-align-annotations t)
   (company-selection-wrap-around t))
 
 (use-package company-flx
@@ -142,6 +150,18 @@
    ("C-\"" . 'sp-change-inner)
    ("M-i" . 'sp-change-enclosing)))
 
+(use-package lsp-mode
+  :commands lsp
+  :config (require 'lsp-clients))
+
+(use-package lsp-ui)
+
+(use-package flycheck-pos-tip
+  :custom
+  (flycheck-display-errors-function #'flycheck-pos-tip-error-messages))
+
+;; Clojure
+
 (use-package clojure-mode
   :hook
   (clojure-mode . display-line-numbers-mode))
@@ -176,9 +196,18 @@
   :config
   (flycheck-clojure-setup))
 
-(use-package flycheck-pos-tip
-  :custom
-  (flycheck-display-errors-function #'flycheck-pos-tip-error-messages))
+;; Rust
+
+(use-package toml-mode)
+
+(use-package rust-mode
+  :hook (rust-mode . lsp))
+
+(use-package cargo
+  :hook (rust-mode . cargo-minor-mode))
+
+(use-package flycheck-rust
+  :config (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
 
 (toggle-scroll-bar -1)
 (setq scroll-margin 12
