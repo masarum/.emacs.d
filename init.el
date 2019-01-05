@@ -159,6 +159,8 @@
 (use-package flycheck-pos-tip
   :custom (flycheck-display-errors-function #'flycheck-pos-tip-error-messages))
 
+(use-package org)
+
 ;; Clojure
 
 (use-package clojure-mode
