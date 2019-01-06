@@ -15,6 +15,9 @@
 (require 'use-package)
 (setq use-package-always-ensure t)
 
+(use-package exec-path-from-shell
+  :init (exec-path-from-shell-initialize))
+
 (use-package delight
   :config
   (delight '((eldoc-mode nil "eldoc")
@@ -22,6 +25,11 @@
 
 (use-package zenburn-theme
   :init (load-theme 'zenburn t))
+
+(use-package paren-face
+  :custom (paren-face-regexp "[][{}()]")
+  :custom-face (parenthesis ((t (:inherit shadow :foreground "gray48"))))
+  :init (global-paren-face-mode))
 
 (use-package smart-mode-line
   :config
@@ -91,11 +99,6 @@
   :delight
   :init (global-column-enforce-mode t))
 
-(use-package highlight-indent-guides
-  :delight
-  :custom (highlight-indent-guides-method 'character)
-  :hook (clojure-mode . highlight-indent-guides-mode))
-
 (use-package expand-region
   :bind
   (("C-=" . 'er/expand-region)
@@ -160,6 +163,9 @@
   :custom (flycheck-display-errors-function #'flycheck-pos-tip-error-messages))
 
 (use-package org)
+
+(use-package magit
+  :bind (("C-x g")))
 
 ;; Clojure
 
@@ -230,5 +236,9 @@
 
 (global-unset-key "\C-z")
 (global-set-key "\C-z" 'advertised-undo)
+
+(let ((site-init "~/.emacs.d/site-init.el"))
+  (when (file-exists-p site-init)
+    (load-file site-init)))
 
 (setq custom-file "~/.emacs.d/custom.el")
