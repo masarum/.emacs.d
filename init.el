@@ -26,8 +26,8 @@
 (use-package zenburn-theme
   :init (load-theme 'zenburn t)
   :custom (zenburn-override-colors-alist
-           '(("zenburn-bg-1"     . "#202020")
-             ("zenburn-bg-05"    . "#282828")
+           '(("zenburn-bg-1"     . "#101010")
+             ("zenburn-bg-05"    . "#202020")
              ("zenburn-bg"       . "#2B2B29"))))
 
 (use-package paren-face
