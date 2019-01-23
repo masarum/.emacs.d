@@ -24,7 +24,11 @@
 	     (whitespace-mode nil "whitespace"))))
 
 (use-package zenburn-theme
-  :init (load-theme 'zenburn t))
+  :init (load-theme 'zenburn t)
+  :custom (zenburn-override-colors-alist
+           '(("zenburn-bg-1"     . "#202020")
+             ("zenburn-bg-05"    . "#282828")
+             ("zenburn-bg"       . "#2B2B29"))))
 
 (use-package paren-face
   :custom (paren-face-regexp "[][{}()]")
@@ -77,8 +81,8 @@
   :delight
   :init (global-company-mode)
   :custom
-  (company-idle-delay 0.2)
-  (company-minimum-prefix-length 1)
+  (company-idle-delay 0.3)
+  (company-minimum-prefix-length 2)
   (company-tooltip-align-annotations t)
   (company-selection-wrap-around t))
 
@@ -93,7 +97,7 @@
 
 (use-package counsel-projectile
   :after counsel projectile
-  :config (counsel-projectile-mode))
+  :init (counsel-projectile-mode))
 
 (use-package column-enforce-mode
   :delight
@@ -159,8 +163,13 @@
 
 (use-package lsp-ui)
 
+(use-package flycheck
+  :init (global-flycheck-mode))
+
 (use-package flycheck-pos-tip
-  :custom (flycheck-display-errors-function #'flycheck-pos-tip-error-messages))
+  :after flycheck
+  :custom (flycheck-display-errors-function #'flycheck-pos-tip-error-messages)
+  :init (flycheck-pos-tip-mode))
 
 (use-package org)
 
@@ -176,6 +185,7 @@
   ;;:pin melpa-stable
   :delight " cider"
   :custom
+  (cider-repl-pop-to-buffer-on-connect 'display-only)
   (cider-repl-use-pretty-print t)
   (cider-font-lock-dynamically '(macro core function var))
   (cider-overlays-use-font-lock t)
@@ -197,10 +207,8 @@
   :hook (clojure-mode . clj-refactor-mode))
 
 (use-package flycheck-clojure
-  :init
-  (global-flycheck-mode)
-  :config
-  (flycheck-clojure-setup))
+  :after flycheck
+  :hook (flycheck-mode . flycheck-clojure-setup))
 
 ;; Rust
 
@@ -213,10 +221,16 @@
   :hook (rust-mode . cargo-minor-mode))
 
 (use-package flycheck-rust
-  :config (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
+  :after flycheck
+  :hook (flycheck-mode . flycheck-rust-setup))
+
+(use-package yaml-mode
+  :init (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode)))
+
+(setq c-default-style "linux")
 
 (toggle-scroll-bar -1)
-(setq scroll-margin 12
+(setq scroll-margin 1
       scroll-conservatively 1
       mouse-wheel-scroll-amount '(1))
 
@@ -228,6 +242,7 @@
                                (lambda (fg) (set-face-foreground 'mode-line fg))
                                orig-fg))))
 
+(global-auto-revert-mode)
 (setq whitespace-style '(face trailing))
 (whitespace-mode 1)
 (setq show-paren-delay 0)
@@ -236,6 +251,10 @@
 
 (global-unset-key "\C-z")
 (global-set-key "\C-z" 'advertised-undo)
+
+(setq-default indent-tabs-mode nil)
+(setq default-tab-width 2
+      c-basic-offset 2)
 
 (let ((site-init "~/.emacs.d/site-init.el"))
   (when (file-exists-p site-init)
