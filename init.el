@@ -30,6 +30,21 @@
              ("zenburn-bg-05"    . "#202020")
              ("zenburn-bg"       . "#2B2B29"))))
 
+(use-package ace-window
+  :bind (("M-o" . ace-window)))
+
+(use-package buffer-flip
+  :custom
+  (buffer-flip-skip-patterns '("^\\*helm\\b"
+                               "^\\*swiper\\*$"))
+  :bind
+  (("C-<tab>" . buffer-flip)
+   ("C-S-<tab>" . buffer-flip-backward)
+   ("C-S-<iso-lefttab>" . buffer-flip-backward)
+   :map buffer-flip-map
+   ("C-<tab>" . buffer-flip-forward)
+   ("ESC" . buffer-flip-abort)))
+
 (use-package paren-face
   :custom (paren-face-regexp "[][{}()]")
   :custom-face (parenthesis ((t (:inherit shadow :foreground "gray48"))))
