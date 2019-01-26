@@ -31,6 +31,7 @@
              ("zenburn-bg"       . "#2B2B29"))))
 
 (use-package ace-window
+  :custom (aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
   :bind (("M-o" . ace-window)))
 
 (use-package buffer-flip
@@ -43,7 +44,16 @@
    ("C-S-<iso-lefttab>" . buffer-flip-backward)
    :map buffer-flip-map
    ("C-<tab>" . buffer-flip-forward)
+   ("C-S-<tab>" . buffer-flip-backward)
+   ("C-S-<iso-lefttab>" . buffer-flip-backward)
    ("ESC" . buffer-flip-abort)))
+
+(use-package golden-ratio-scroll-screen
+  :custom-face
+  (golden-ratio-scroll-highlight-line-face ((t (:inherit highlight))))
+  :bind
+  ([remap scroll-down-command] . golden-ratio-scroll-screen-down)
+  ([remap scroll-up-command] . golden-ratio-scroll-screen-up))
 
 (use-package paren-face
   :custom (paren-face-regexp "[][{}()]")
@@ -120,8 +130,8 @@
 
 (use-package expand-region
   :bind
-  (("C-=" . 'er/expand-region)
-   ("C--" . 'er/contract-region)))
+  (("M-S-<up>" . 'er/expand-region)
+   ("M-S-<down>" . 'er/contract-region)))
 
 (use-package hungry-delete
   :delight
@@ -138,39 +148,16 @@
 (use-package smartparens
   :delight
   :init (smartparens-global-mode t)
-  :hook (clojure-mode . turn-on-smartparens-strict-mode)
-  :config (require 'smartparens-config)
+  :config
+  (require 'smartparens-config)
+  (sp-use-smartparens-bindings)
   :bind
-  (("C-M-f" . 'sp-forward-sexp)
-   ("C-M-b" . 'sp-backward-sexp)
-   ("C-M-d" . 'sp-down-sexp)
-   ("C-M-a" . 'sp-backward-down-sexp)
-   ("C-S-d" . 'sp-beginning-of-sexp)
-   ("C-S-a" . 'sp-end-of-sexp)
-   ("C-M-e" . 'sp-up-sexp)
-   ("C-M-u" . 'sp-backward-up-sexp)
-   ("C-M-t" . 'sp-transpose-sexp)
-   ("C-M-n" . 'sp-forward-hybrid-sexp)
-   ("C-M-p" . 'sp-backward-hybrid-sexp)
-   ("C-M-k" . 'sp-kill-sexp)
-   ("C-M-w" . 'sp-copy-sexp)
-   ("M-<delete>" . 'sp-unwrap-sexp)
-   ("M-<backspace>" . 'sp-backward-unwrap-sexp)
-   ("C-<right>" . 'sp-forward-slurp-sexp)
-   ("C-<left>" . 'sp-forward-barf-sexp)
-   ("C-M-<left>" . 'sp-backward-slurp-sexp)
-   ("C-M-<right>" . 'sp-backward-barf-sexp)
-   ("M-D" . 'sp-splice-sexp)
-   ("C-M-<delete>" . 'sp-splice-sexp-killing-forward)
-   ("C-M-<backspace>" . 'sp-splice-sexp-killing-backward)
-   ("C-S-<backspace>" . 'sp-splice-sexp-killing-around)
-   ("C-]" . 'sp-select-next-thing-exchange)
-   ("C-<left_bracket>" . 'sp-select-previous-thing)
-   ("C-M-]" . 'sp-select-next-thing)
-   ("M-F" . 'sp-forward-symbol)
-   ("M-B" . 'sp-backward-symbol)
-   ("C-\"" . 'sp-change-inner)
-   ("M-i" . 'sp-change-enclosing)))
+  (:map smartparens-mode-map
+        (("M-<right>" . 'sp-forward-sexp)
+         ("M-<left>" . 'sp-backward-sexp)
+         ("M-<up>" . 'sp-backward-up-sexp)
+         ("M-<down>" . 'sp-up-sexp)))
+  :hook (clojure-mode . turn-on-smartparens-strict-mode))
 
 (use-package lsp-mode
   :commands lsp
