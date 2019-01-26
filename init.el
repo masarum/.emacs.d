@@ -39,13 +39,12 @@
   (buffer-flip-skip-patterns '("^\\*helm\\b"
                                "^\\*swiper\\*$"))
   :bind
-  (("C-<tab>" . buffer-flip)
-   ("C-S-<tab>" . buffer-flip-backward)
-   ("C-S-<iso-lefttab>" . buffer-flip-backward)
+  (("C-S-<tab>" . buffer-flip)
+   ("C-S-<iso-lefttab>" . buffer-flip)
    :map buffer-flip-map
-   ("C-<tab>" . buffer-flip-forward)
-   ("C-S-<tab>" . buffer-flip-backward)
-   ("C-S-<iso-lefttab>" . buffer-flip-backward)
+   ("C-S-<tab>" . buffer-flip-forward)
+   ("C-S-<iso-lefttab>" . buffer-flip-forward)
+   ("C-<tab>" . buffer-flip-backward)
    ("ESC" . buffer-flip-abort)))
 
 (use-package golden-ratio-scroll-screen
@@ -112,7 +111,8 @@
   (company-idle-delay 0.3)
   (company-minimum-prefix-length 2)
   (company-tooltip-align-annotations t)
-  (company-selection-wrap-around t))
+  (company-selection-wrap-around t)
+  :bind (("TAB" . company-indent-or-complete-common)))
 
 (use-package company-flx
   :after company
