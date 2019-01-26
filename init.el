@@ -55,6 +55,9 @@
   ([remap scroll-down-command] . golden-ratio-scroll-screen-down)
   ([remap scroll-up-command] . golden-ratio-scroll-screen-up))
 
+(use-package avy
+  :bind ("C-;" . avy-goto-char-timer))
+
 (use-package paren-face
   :custom (paren-face-regexp "[][{}()]")
   :custom-face (parenthesis ((t (:inherit shadow :foreground "gray48"))))
