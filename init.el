@@ -216,6 +216,10 @@
   :after flycheck
   :hook (flycheck-mode . flycheck-clojure-setup))
 
+;; JavaScript
+
+(use-package indium)
+
 ;; Rust
 
 (use-package toml-mode)
