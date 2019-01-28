@@ -235,6 +235,7 @@
 
 (setq c-default-style "linux")
 
+(tool-bar-mode -1)
 (toggle-scroll-bar -1)
 (setq scroll-margin 1
       scroll-conservatively 1
