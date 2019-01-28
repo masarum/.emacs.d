@@ -87,7 +87,8 @@
   :custom
   (ivy-use-virtual-buffers t)
   (ivy-count-format "")
-  (ivy-re-builders-alist '((t . ivy--regex-fuzzy)))
+  (ivy-re-builders-alist '((swiper . ivy--regex-plus)
+                           (t . ivy--regex-fuzzy)))
   :config (ivy-mode)
   :bind
   (("C-c C-r" . ivy-resume)
