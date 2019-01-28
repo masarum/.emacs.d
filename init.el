@@ -67,14 +67,16 @@
   (column-number-mode t)
   (sml/setup))
 
+(defun add-popwin (buf-name)
+  (push `(,buf-name
+	  :dedicated t :position bottom :stick t :noselect t :height 0.4)
+	popwin:special-display-config))
+
 (use-package popwin
   :config
-  (push '("*cider-error*"
-	  :dedicated t :position bottom :stick t :noselect t :height 0.4)
-	popwin:special-display-config)
-  (push '("*cider-doc*"
-	  :dedicated t :position bottom :stick t :noselect t :height 0.4)
-	popwin:special-display-config)
+  (add-popwin "*cider-error*")
+  (add-popwin "*cider-doc*")
+  (add-popwin "*xref*")
   (popwin-mode 1))
 
 (use-package which-key
@@ -217,8 +219,37 @@
   :hook (flycheck-mode . flycheck-clojure-setup))
 
 ;; JavaScript
+(use-package js2-mode
+  :mode "\\.js\\'"
+  :hook (js2-mode . js2-imenu-extras-mode))
 
-(use-package indium)
+(use-package prettier-js
+  :hook (js2-mode . prettier-js-mode))
+
+(use-package js2-refactor
+  :config (js2r-add-keybindings-with-prefix "C-c f")
+  :bind (:map js2-mode-map (("C-k" . js2r-kill)))
+  :hook (js2-mode . js2-refactor-mode))
+
+(use-package xref-js2
+  :bind (:map js-mode-map (("M-." . nil)))
+  :config
+  (add-hook 'js2-mode-hook
+            (lambda ()
+              (add-hook 'xref-backend-functions
+                        #'xref-js2-xref-backend nil t))))
+
+(use-package company-tern
+  :after company
+  :init (add-to-list 'company-backends 'company-tern)
+  :bind (:map tern-mode-keymap
+              (("M-," . nil)
+               ("M-." . nil)))
+  :hook (js2-mode . tern-mode))
+
+(use-package indium
+  :custom (js2-basic-offset 2)
+  :hook (js2-mode . indium-interaction-mode))
 
 ;; Rust
 
