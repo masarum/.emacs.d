@@ -218,10 +218,13 @@
   :after flycheck
   :hook (flycheck-mode . flycheck-clojure-setup))
 
-;; JavaScript
+;; JavaScript/TypeScript
 (use-package js2-mode
   :mode "\\.js\\'"
-  :hook (js2-mode . js2-imenu-extras-mode))
+  :custom (js2-basic-offset 2)
+  :hook
+  (js2-mode . js2-imenu-extras-mode)
+  (js2-mode . eldoc-mode))
 
 (use-package prettier-js
   :hook (js2-mode . prettier-js-mode))
@@ -231,25 +234,16 @@
   :bind (:map js2-mode-map (("C-k" . js2r-kill)))
   :hook (js2-mode . js2-refactor-mode))
 
-(use-package xref-js2
-  :bind (:map js-mode-map (("M-." . nil)))
-  :config
-  (add-hook 'js2-mode-hook
-            (lambda ()
-              (add-hook 'xref-backend-functions
-                        #'xref-js2-xref-backend nil t))))
+(use-package typescript-mode
+  :hook (typescript-mode . eldoc-mode))
 
-(use-package company-tern
-  :after company
-  :init (add-to-list 'company-backends 'company-tern)
-  :bind (:map tern-mode-keymap
-              (("M-," . nil)
-               ("M-." . nil)))
-  :hook (js2-mode . tern-mode))
+(use-package tide
+  :hook
+  ((js2-mode typescript-mode) . tide-setup)
+  ((js2-mode typescript-mode) . tide-hl-identifier-mode))
 
 (use-package indium
-  :custom (js2-basic-offset 2)
-  :hook (js2-mode . indium-interaction-mode))
+  :hook ((js2-mode typescript-mode) . indium-interaction-mode))
 
 ;; Rust
 
