@@ -194,10 +194,9 @@
   :delight " cider"
   :custom
   (cider-repl-pop-to-buffer-on-connect 'display-only)
-  (cider-repl-use-pretty-print t)
   (cider-font-lock-dynamically '(macro core function var))
   (cider-overlays-use-font-lock t)
-  (cider-prompt-save-file-on-load 'always-save)
+  (cider-save-file-on-load t)
   :hook
   ((cider-repl-mode cider-mode) . cider-company-enable-fuzzy-completion)
   (cider-mode . eldoc-mode)
@@ -205,16 +204,17 @@
   (clojure-keyword-face ((t (:inherit font-lock-constant-face :slant italic)))))
 
 (use-package yasnippet
-  :delight (yas-minor-mode)
-  :config (yas-minor-mode 1))
+  :delight (yas-minor-mode))
 
 (use-package clj-refactor
   :delight
   :custom
   (cljr-warn-on-eval nil)
   (cljr-eagerly-build-asts-on-startup nil)
-  :config (cljr-add-keybindings-with-prefix "C-c f")
-  :hook (clojure-mode . clj-refactor-mode))
+  :config (cljr-add-keybindings-with-prefix "C-c r")
+  :hook
+  (clojure-mode . clj-refactor-mode)
+  (clojure-mode . yas-minor-mode))
 
 (use-package flycheck-clojure
   :after flycheck
@@ -232,7 +232,7 @@
   :hook (js2-mode . prettier-js-mode))
 
 (use-package js2-refactor
-  :config (js2r-add-keybindings-with-prefix "C-c f")
+  :config (js2r-add-keybindings-with-prefix "C-c r")
   :bind (:map js2-mode-map (("C-k" . js2r-kill)))
   :hook (js2-mode . js2-refactor-mode))
 
@@ -287,8 +287,8 @@
 (show-paren-mode 1)
 (delete-selection-mode 1)
 
-(global-unset-key "\C-z")
-(global-set-key "\C-z" 'advertised-undo)
+(global-set-key (kbd "C-z") 'undo)
+(global-set-key (kbd "C-'") 'pop-to-mark-command)
 
 (setq-default indent-tabs-mode nil)
 (setq default-tab-width 2
