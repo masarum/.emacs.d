@@ -210,7 +210,9 @@
 
 (use-package clj-refactor
   :delight
-  :custom (cljr-warn-on-eval nil)
+  :custom
+  (cljr-warn-on-eval nil)
+  (cljr-eagerly-build-asts-on-startup nil)
   :config (cljr-add-keybindings-with-prefix "C-c f")
   :hook (clojure-mode . clj-refactor-mode))
 
