@@ -34,6 +34,9 @@
   :custom (aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
   :bind (("M-o" . ace-window)))
 
+(use-package neotree
+  :custom (neo-smart-open t))
+
 (use-package buffer-flip
   :custom
   (buffer-flip-skip-patterns '("^\\*helm\\b"
