@@ -190,11 +190,6 @@
 (use-package flycheck
   :init (global-flycheck-mode))
 
-(use-package flycheck-pos-tip
-  :after flycheck
-  :custom (flycheck-display-errors-function #'flycheck-pos-tip-error-messages)
-  :init (flycheck-pos-tip-mode))
-
 (use-package org)
 
 (use-package magit
