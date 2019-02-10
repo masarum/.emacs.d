@@ -269,6 +269,8 @@
 
 (setq c-default-style "linux")
 
+(setq use-dialog-box nil)
+(tooltip-mode -1)
 (tool-bar-mode -1)
 (toggle-scroll-bar -1)
 (setq scroll-margin 1
@@ -302,3 +304,4 @@
     (load-file site-init)))
 
 (setq custom-file "~/.emacs.d/custom.el")
+(load custom-file)
