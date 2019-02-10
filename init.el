@@ -154,12 +154,25 @@
   :delight
   :init (global-whitespace-cleanup-mode))
 
+(defun add-space-after-insert (id action _context)
+  (when (eq action 'insert)
+    (save-excursion
+      (forward-char (length (plist-get (sp-get-pair id) :close)))
+      (when (or (eq (char-syntax (following-char)) ?w)
+                (looking-at (sp--get-opening-regexp
+                             (sp--get-allowed-pair-list))))
+        (insert " ")))))
+
 (use-package smartparens
   :delight
   :init (smartparens-global-mode t)
   :config
   (require 'smartparens-config)
   (sp-use-smartparens-bindings)
+  (sp-with-modes sp-lisp-modes
+    (sp-local-pair "(" nil :post-handlers '(:add add-space-after-insert))
+    (sp-local-pair "[" nil :post-handlers '(:add add-space-after-insert))
+    (sp-local-pair "{" nil :post-handlers '(:add add-space-after-insert)))
   :bind
   (:map smartparens-mode-map
         (("M-<right>" . 'sp-forward-sexp)
