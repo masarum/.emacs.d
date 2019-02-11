@@ -34,6 +34,13 @@
   :custom (aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
   :bind (("M-o" . ace-window)))
 
+(use-package dired-subtree
+  :after dired
+  :bind
+  (:map dired-mode-map
+        ("<tab>" . dired-subtree-toggle)
+        ("<backtab>" . dired-subtree-cycle)))
+
 (use-package neotree
   :custom (neo-smart-open t))
 
