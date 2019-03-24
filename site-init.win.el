@@ -1,5 +1,4 @@
-(set-face-attribute 'default nil :font "Office Code Pro 13" :weight 'light)
-(setq-default line-spacing 0.1)
+(setq-default line-spacing 0.4)
 (mapc
  (lambda (face)
    (when (eq (face-attribute face :weight) 'bold)

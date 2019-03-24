@@ -75,7 +75,8 @@
   :bind
   (:map dired-mode-map
         ("<tab>" . dired-subtree-toggle)
-        ("<backtab>" . dired-subtree-cycle)))
+        ("<backtab>" . dired-subtree-cycle))
+  :hook (dired-mode . dired-hide-details-mode))
 
 (use-package neotree
   :custom (neo-smart-open t))
