@@ -1,3 +1,4 @@
+(add-hook 'window-setup-hook 'toggle-frame-fullscreen t)
 (setq use-dialog-box nil)
 (tooltip-mode -1)
 (tool-bar-mode -1)
@@ -92,7 +93,7 @@
    ("C-S-<tab>" . buffer-flip-forward)
    ("C-S-<iso-lefttab>" . buffer-flip-forward)
    ("C-<tab>" . buffer-flip-backward)
-   ("ESC" . buffer-flip-abort)))
+   ("C-g" . buffer-flip-abort)))
 
 (use-package golden-ratio-scroll-screen
   :custom-face
@@ -309,10 +310,6 @@
 
 (use-package prettier-js
   :hook ((json-mode js2-mode typescript-mode) . prettier-js-mode))
-
-(use-package ts-comint
-  :bind
-  (("C-x C-e" . ts-send-last-sexp)))
 
 ;; Rust
 
