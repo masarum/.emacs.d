@@ -1,3 +1,7 @@
+(setq make-backup-files nil)
+(setq auto-save-default nil)
+(setq create-lockfiles nil)
+
 (add-hook 'window-setup-hook 'toggle-frame-fullscreen t)
 (setq use-dialog-box nil)
 (tooltip-mode -1)
@@ -16,21 +20,39 @@
                                orig-fg))))
 
 (global-auto-revert-mode)
-(setq whitespace-style '(face trailing))
+(defvar whitespace-style '(face trailing))
 (whitespace-mode 1)
-(setq show-paren-delay 0)
+(defvar show-paren-delay 0)
 (show-paren-mode 1)
 (delete-selection-mode 1)
 
 (global-set-key (kbd "C-z") 'undo)
 (global-set-key (kbd "C-/") 'pop-to-mark-command)
 
+(defun my-pop-local-mark-ring ()
+  "Pop mark ring."
+  (interactive)
+  (set-mark-command t))
+
+(defun unpop-to-mark-command ()
+  "Unpop mark ring. Does nothing if mark ring is empty."
+  (interactive)
+  (when mark-ring
+    (setq mark-ring (cons (copy-marker (mark-marker)) mark-ring))
+    (set-marker (mark-marker) (car (last mark-ring)) (current-buffer))
+    (when (null (mark t)) (ding))
+    (setq mark-ring (nbutlast mark-ring))
+    (goto-char (marker-position (car (last mark-ring))))))
+
+(global-set-key (kbd "C-,") 'my-pop-local-mark-ring)
+(global-set-key (kbd "C-.") 'unpop-to-mark-command)
+
 (electric-indent-mode -1)
 (add-hook 'after-change-major-mode-hook (lambda() (electric-indent-mode -1)))
 
 (setq-default indent-tabs-mode nil)
 (setq tab-width 2)
-(setq c-default-style "linux")
+(defvar c-default-style "linux")
 (defvaralias 'c-basic-offset 'tab-width)
 
 (setq custom-file "~/.emacs.d/custom.el")
@@ -233,7 +255,8 @@
 (use-package lsp-ui)
 
 (use-package flycheck
-  :init (global-flycheck-mode))
+  :init (global-flycheck-mode)
+  :custom (sentence-end-double-space nil))
 
 (use-package org)
 
