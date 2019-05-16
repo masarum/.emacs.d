@@ -10,6 +10,7 @@
 (setq scroll-margin 1
       scroll-conservatively 1
       mouse-wheel-scroll-amount '(1))
+(winner-mode 1)
 
 (setq ring-bell-function
       (lambda ()
@@ -27,7 +28,6 @@
 (delete-selection-mode 1)
 
 (global-set-key (kbd "C-z") 'undo)
-(global-set-key (kbd "C-/") 'pop-to-mark-command)
 
 (defun my-pop-local-mark-ring ()
   "Pop mark ring."
@@ -136,18 +136,6 @@
   :config
   (column-number-mode t)
   (sml/setup))
-
-(defun add-popwin (buf-name)
-  (push `(,buf-name
-	  :dedicated t :position bottom :stick t :noselect t :height 0.4)
-	popwin:special-display-config))
-
-(use-package popwin
-  :config
-  (add-popwin "*cider-error*")
-  (add-popwin "*cider-doc*")
-  (add-popwin "*xref*")
-  (popwin-mode 1))
 
 (use-package which-key
   :delight
