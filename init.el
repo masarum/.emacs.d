@@ -125,7 +125,7 @@
   ([remap scroll-up-command] . golden-ratio-scroll-screen-up))
 
 (use-package avy
-  :bind ("C-;" . avy-goto-char-timer))
+  :bind ("C-;" . avy-goto-char-2))
 
 (use-package paren-face
   :custom (paren-face-regexp "[][{}()]")
@@ -159,11 +159,11 @@
   :custom
   (ivy-use-virtual-buffers t)
   (ivy-count-format "")
-  (ivy-re-builders-alist '((swiper . ivy--regex-plus)
+  (ivy-re-builders-alist '((swiper-isearch . ivy--regex-plus)
                            (t . ivy--regex-fuzzy)))
   :config (ivy-mode)
   :bind
-  (("C-c C-r" . ivy-resume)
+  (("C-r" . ivy-resume)
    ("C-x B" . ivy-switch-buffer-other-window)))
 
 (use-package counsel
@@ -174,8 +174,7 @@
 (use-package swiper
   :after ivy
   :bind
-  (("C-s" . swiper)
-   ("C-r" . swiper)))
+  (("C-s" . swiper-isearch)))
 
 (use-package company
   :delight
