@@ -85,9 +85,10 @@
 (use-package zenburn-theme
   :init (load-theme 'zenburn t)
   :custom (zenburn-override-colors-alist
-           '(("zenburn-bg-1"     . "#101010")
-             ("zenburn-bg-05"    . "#202020")
-             ("zenburn-bg"       . "#2B2B29"))))
+           '(("zenburn-bg-1"  . "#101010")
+             ("zenburn-bg-05" . "#202020")
+             ("zenburn-bg"    . "#2B2B29")
+             ("zenburn-fg"    . "#EFEFDF"))))
 
 (use-package ace-window
   :custom
