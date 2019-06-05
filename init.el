@@ -1,3 +1,22 @@
+(require 'package)
+(add-to-list 'package-archives
+	     '("melpa" . "https://melpa.org/packages/") t)
+(add-to-list 'package-archives
+	     '("melpa-stable" . "https://stable.melpa.org/packages/") t)
+(package-initialize)
+
+(unless package-archive-contents
+  (package-refresh-contents))
+
+(unless (package-installed-p 'use-package)
+  (package-install 'use-package))
+
+(require 'use-package)
+(setq use-package-always-ensure t)
+
+(use-package gcmh
+  :init (gcmh-mode 1))
+
 (setq make-backup-files nil)
 (setq auto-save-default nil)
 (setq create-lockfiles nil)
@@ -11,14 +30,6 @@
       scroll-conservatively 1
       mouse-wheel-scroll-amount '(1))
 (winner-mode 1)
-
-(setq ring-bell-function
-      (lambda ()
-        (let ((orig-fg (face-foreground 'mode-line)))
-          (set-face-foreground 'mode-line "#F2804F")
-          (run-with-idle-timer 0.1 nil
-                               (lambda (fg) (set-face-foreground 'mode-line fg))
-                               orig-fg))))
 
 (global-auto-revert-mode)
 (defvar whitespace-style '(face trailing))
@@ -55,24 +66,12 @@
 (defvar c-default-style "linux")
 (defvaralias 'c-basic-offset 'tab-width)
 
+(setq-default cursor-type '(bar . 1))
+(setq-default cursor-in-non-selected-windows 'hollow)
+(setq blink-cursor-blinks -1)
+
 (setq custom-file "~/.emacs.d/custom.el")
 (load custom-file)
-
-(require 'package)
-(add-to-list 'package-archives
-	     '("melpa" . "https://melpa.org/packages/") t)
-(add-to-list 'package-archives
-	     '("melpa-stable" . "https://stable.melpa.org/packages/") t)
-(package-initialize)
-
-(unless package-archive-contents
-  (package-refresh-contents))
-
-(unless (package-installed-p 'use-package)
-  (package-install 'use-package))
-
-(require 'use-package)
-(setq use-package-always-ensure t)
 
 (use-package exec-path-from-shell
   :init (exec-path-from-shell-initialize))
@@ -82,13 +81,31 @@
   (delight '((eldoc-mode nil "eldoc")
 	     (whitespace-mode nil "whitespace"))))
 
-(use-package zenburn-theme
-  :init (load-theme 'zenburn t)
-  :custom (zenburn-override-colors-alist
-           '(("zenburn-bg-1"  . "#101010")
-             ("zenburn-bg-05" . "#202020")
-             ("zenburn-bg"    . "#2B2B29")
-             ("zenburn-fg"    . "#EFEFDF"))))
+(use-package all-the-icons)
+
+(use-package dashboard
+  :custom
+  (dashboard-items '((projects . 5)
+                     (recents . 15)))
+  (dashboard-center-content t)
+  :config
+  (dashboard-setup-startup-hook))
+
+(use-package doom-themes
+  :custom
+  (doom-themes-enable-bold t)
+  (doom-themes-enable-italics t)
+  (doom-one-light-padded-modeline nil)
+  :config
+  (load-theme 'doom-one-light t)
+  (doom-themes-visual-bell-config)
+  (doom-themes-org-config))
+
+(use-package doom-modeline
+  :config (doom-modeline-mode 1))
+
+(use-package dimmer
+  :config (dimmer-mode))
 
 (use-package ace-window
   :custom
@@ -104,9 +121,6 @@
         ("<backtab>" . dired-subtree-cycle))
   :hook (dired-mode . dired-hide-details-mode))
 
-(use-package neotree
-  :custom (neo-smart-open t))
-
 (use-package buffer-flip
   :custom
   (buffer-flip-skip-patterns '("^\\*helm\\b"
@@ -121,18 +135,25 @@
    ("C-g" . buffer-flip-abort)))
 
 (use-package golden-ratio-scroll-screen
-  :custom-face
-  (golden-ratio-scroll-highlight-line-face ((t (:inherit highlight))))
+  :custom
+  (golden-ratio-scroll-highlight-flag nil)
   :bind
   ([remap scroll-down-command] . golden-ratio-scroll-screen-down)
   ([remap scroll-up-command] . golden-ratio-scroll-screen-up))
+
+(use-package beacon
+  :custom
+  (beacon-blink-when-point-moves-vertically 2)
+  (beacon-color "#FFCC99")
+  (beacon-size 20)
+  (beacon-blink-delay 0.2)
+  :config (beacon-mode 1))
 
 (use-package avy
   :bind ("C-;" . avy-goto-char-2))
 
 (use-package paren-face
   :custom (paren-face-regexp "[][{}()]")
-  :custom-face (parenthesis ((t (:inherit shadow :foreground "gray48"))))
   :init (global-paren-face-mode))
 
 (use-package smart-mode-line
@@ -166,6 +187,10 @@
   :after ivy
   :bind
   (("C-s" . swiper-isearch)))
+
+(use-package ivy-rich
+  :custom (ivy-format-function #'ivy-format-function-line)
+  :config (ivy-rich-mode 1))
 
 (use-package company
   :delight
