@@ -95,22 +95,31 @@
   :custom
   (doom-themes-enable-bold t)
   (doom-themes-enable-italics t)
-  (doom-one-light-padded-modeline nil)
+  (doom-one-light-padded-modeline 1)
   :config
   (load-theme 'doom-one-light t)
   (doom-themes-visual-bell-config)
-  (doom-themes-org-config))
+  (doom-themes-org-config)
+  (set-face-background 'show-paren-match nil)
+  (set-face-attribute 'highlight nil
+                      :foreground (face-foreground 'default)
+                      :background (doom-darken (face-background 'default) 0.05)))
 
 (use-package doom-modeline
   :config (doom-modeline-mode 1))
 
 (use-package dimmer
+  :custom (dimmer-fraction 0.25)
   :config (dimmer-mode))
 
 (use-package ace-window
   :custom
   (aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
   (aw-dispatch-always t)
+  (aw-background nil)
+  :config
+  (set-face-attribute 'aw-leading-char-face nil
+                      :weight 'bold)
   :bind (("M-o" . ace-window)))
 
 (use-package dired-subtree
@@ -255,6 +264,8 @@
     (sp-local-pair "(" nil :post-handlers '(:add add-space-after-insert))
     (sp-local-pair "[" nil :post-handlers '(:add add-space-after-insert))
     (sp-local-pair "{" nil :post-handlers '(:add add-space-after-insert)))
+  :custom
+  (sp-highlight-pair-overlay nil)
   :bind
   (:map smartparens-mode-map
         (("M-<right>" . 'sp-forward-sexp)
