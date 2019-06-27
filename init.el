@@ -1,25 +1,18 @@
-(require 'package)
-(add-to-list 'package-archives
-	     '("melpa" . "https://melpa.org/packages/") t)
-(add-to-list 'package-archives
-	     '("melpa-stable" . "https://stable.melpa.org/packages/") t)
-(package-initialize)
+;;; init.el --- Emacs config
 
-(unless package-archive-contents
-  (package-refresh-contents))
+;;; Commentary:
+;; This is my init.el. There are many like it, but this one is mine.
 
-(unless (package-installed-p 'use-package)
-  (package-install 'use-package))
+;;; Code:
 
-(require 'use-package)
-(setq use-package-always-ensure t)
+(setq gc-cons-threshold 1000000000
+      garbage-collection-messages t)
 
-(use-package gcmh
-  :init (gcmh-mode 1))
+(prefer-coding-system 'utf-8)
 
-(setq make-backup-files nil)
-(setq auto-save-default nil)
-(setq create-lockfiles nil)
+(setq make-backup-files nil
+      auto-save-default nil
+      create-lockfiles nil)
 
 (add-hook 'window-setup-hook 'toggle-frame-fullscreen t)
 (setq use-dialog-box nil)
@@ -66,12 +59,36 @@
 (defvar c-default-style "linux")
 (defvaralias 'c-basic-offset 'tab-width)
 
-(setq-default cursor-type '(bar . 1))
-(setq-default cursor-in-non-selected-windows 'hollow)
+(setq-default cursor-type '(bar . 1)
+              cursor-in-non-selected-windows 'hollow)
 (setq blink-cursor-blinks -1)
 
 (setq custom-file "~/.emacs.d/custom.el")
 (load custom-file)
+
+;; Packages
+
+(require 'package)
+(add-to-list 'package-archives
+	     '("melpa" . "https://melpa.org/packages/") t)
+(add-to-list 'package-archives
+	     '("melpa-stable" . "https://stable.melpa.org/packages/") t)
+(package-initialize)
+
+(unless package-archive-contents
+  (package-refresh-contents))
+
+(unless (package-installed-p 'use-package)
+  (package-install 'use-package))
+
+(require 'use-package)
+(setq use-package-always-ensure t)
+
+(use-package gcmh
+  :custom
+  (gcmh-high-cons-threshold 4000000000)
+  (gcmh-verbose t)
+  :init (gcmh-mode 1))
 
 (use-package exec-path-from-shell
   :init (exec-path-from-shell-initialize))
@@ -117,6 +134,7 @@
   (aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
   (aw-dispatch-always t)
   (aw-background nil)
+  (aw-scope 'frame)
   :config
   (set-face-attribute 'aw-leading-char-face nil
                       :weight 'bold)
@@ -217,6 +235,7 @@
 
 (use-package projectile
   :delight '(:eval (concat " " (projectile-project-name)))
+  :custom (projectile-completion-system 'ivy)
   :config (projectile-mode +1)
   :bind-keymap ("M-p" . projectile-command-map))
 
@@ -239,7 +258,7 @@
 
 (use-package aggressive-indent
   :delight
-  :init (global-aggressive-indent-mode 1))
+  :hook ((clojure-mode typescript-mode) . aggressive-indent-mode))
 
 (use-package whitespace-cleanup-mode
   :delight
@@ -384,3 +403,5 @@
   (when (file-exists-p site-init)
     (load-file site-init)))
 
+(provide 'init)
+;;; init.el ends here
