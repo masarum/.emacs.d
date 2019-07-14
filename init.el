@@ -14,6 +14,7 @@
       auto-save-default nil
       create-lockfiles nil)
 
+(add-to-list 'default-frame-alist '(fullscreen . maximized))
 (add-hook 'window-setup-hook 'toggle-frame-fullscreen t)
 (setq use-dialog-box nil)
 (tooltip-mode -1)
@@ -112,7 +113,7 @@
   :custom
   (doom-themes-enable-bold t)
   (doom-themes-enable-italics t)
-  (doom-one-light-padded-modeline 1)
+  (doom-one-light-padded-modeline nil)
   :config
   (load-theme 'doom-one-light t)
   (doom-themes-visual-bell-config)
@@ -120,13 +121,13 @@
   (set-face-background 'show-paren-match nil)
   (set-face-attribute 'highlight nil
                       :foreground (face-foreground 'default)
-                      :background (doom-darken (face-background 'default) 0.05)))
+                      :background (doom-darken (face-background 'default) 0.03)))
 
 (use-package doom-modeline
   :config (doom-modeline-mode 1))
 
 (use-package dimmer
-  :custom (dimmer-fraction 0.25)
+  :custom (dimmer-fraction 0.3)
   :config (dimmer-mode))
 
 (use-package ace-window
@@ -213,7 +214,7 @@
 (use-package swiper
   :after ivy
   :bind
-  (("C-s" . swiper-isearch)))
+  (("C-s" . swiper-thing-at-point)))
 
 (use-package ivy-rich
   :custom (ivy-format-function #'ivy-format-function-line)
@@ -258,7 +259,8 @@
 
 (use-package aggressive-indent
   :delight
-  :hook ((clojure-mode typescript-mode) . aggressive-indent-mode))
+  :custom (aggressive-indent-dont-electric-modes t)
+  :config (global-aggressive-indent-mode 1))
 
 (use-package whitespace-cleanup-mode
   :delight
@@ -366,7 +368,9 @@
   :hook (js2-mode . indium-interaction-mode))
 
 (use-package typescript-mode
-  :custom (typescript-indent-level 2)
+  :custom
+  (typescript-indent-level 2)
+  (typescript-auto-indent-flag nil)
   :hook
   (typescript-mode . eldoc-mode)
   (typescript-mode . display-line-numbers-mode))
