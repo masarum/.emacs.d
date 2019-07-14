@@ -34,12 +34,12 @@
 
 (global-set-key (kbd "C-z") 'undo)
 
-(defun my-pop-local-mark-ring ()
+(defun voxlet/pop-local-mark-ring ()
   "Pop mark ring."
   (interactive)
   (set-mark-command t))
 
-(defun unpop-to-mark-command ()
+(defun voxlet/unpop-to-mark-command ()
   "Unpop mark ring. Does nothing if mark ring is empty."
   (interactive)
   (when mark-ring
@@ -49,8 +49,8 @@
     (setq mark-ring (nbutlast mark-ring))
     (goto-char (marker-position (car (last mark-ring))))))
 
-(global-set-key (kbd "C-,") 'my-pop-local-mark-ring)
-(global-set-key (kbd "C-.") 'unpop-to-mark-command)
+(global-set-key (kbd "C-,") 'voxlet/pop-local-mark-ring)
+(global-set-key (kbd "C-.") 'voxlet/unpop-to-mark-command)
 
 (electric-indent-mode -1)
 (add-hook 'after-change-major-mode-hook (lambda() (electric-indent-mode -1)))
@@ -211,10 +211,17 @@
   :after ivy
   :config (counsel-mode))
 
+(defun voxlet/swiper-isearch ()
+  "Use swiper-isearch-thing-at-point, but only if we have a region."
+  (interactive)
+  (if (region-active-p)
+      (swiper-isearch-thing-at-point)
+    (swiper-isearch)))
+
 (use-package swiper
   :after ivy
   :bind
-  (("C-s" . swiper-thing-at-point)))
+  (("C-s" . voxlet/swiper-isearch)))
 
 (use-package ivy-rich
   :custom (ivy-format-function #'ivy-format-function-line)
@@ -266,7 +273,7 @@
   :delight
   :init (global-whitespace-cleanup-mode))
 
-(defun add-space-after-insert (id action _context)
+(defun voxlet/add-space-after-insert (id action _context)
   (when (eq action 'insert)
     (save-excursion
       (forward-char (length (plist-get (sp-get-pair id) :close)))
@@ -282,9 +289,9 @@
   (require 'smartparens-config)
   (sp-use-smartparens-bindings)
   (sp-with-modes sp-lisp-modes
-    (sp-local-pair "(" nil :post-handlers '(:add add-space-after-insert))
-    (sp-local-pair "[" nil :post-handlers '(:add add-space-after-insert))
-    (sp-local-pair "{" nil :post-handlers '(:add add-space-after-insert)))
+    (sp-local-pair "(" nil :post-handlers '(:add voxlet/add-space-after-insert))
+    (sp-local-pair "[" nil :post-handlers '(:add voxlet/add-space-after-insert))
+    (sp-local-pair "{" nil :post-handlers '(:add voxlet/add-space-after-insert)))
   :custom
   (sp-highlight-pair-overlay nil)
   :bind
