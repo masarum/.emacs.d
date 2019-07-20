@@ -5,8 +5,10 @@
 
 ;;; Code:
 
-(setq gc-cons-threshold 1000000000
-      garbage-collection-messages t)
+(setq custom-file "~/.emacs.d/custom.el")
+(load custom-file 'noerror)
+
+(load "~/.emacs.d/site-init.el" 'noerror)
 
 (prefer-coding-system 'utf-8)
 
@@ -25,6 +27,13 @@
       mouse-wheel-scroll-amount '(1))
 (winner-mode 1)
 
+(setq window-divider-default-places t
+      window-divider-default-bottom-width 1
+      window-divider-default-right-width 1)
+(window-divider-mode +1)
+
+(when (fboundp 'global-so-long-mode)
+  (global-so-long-mode 1))
 (global-auto-revert-mode)
 (defvar whitespace-style '(face trailing))
 (whitespace-mode 1)
@@ -64,9 +73,6 @@
               cursor-in-non-selected-windows 'hollow)
 (setq blink-cursor-blinks -1)
 
-(setq custom-file "~/.emacs.d/custom.el")
-(load custom-file)
-
 ;; Packages
 
 (require 'package)
@@ -80,19 +86,16 @@
   (package-refresh-contents))
 
 (unless (package-installed-p 'use-package)
+  (package-refresh-contents)
   (package-install 'use-package))
 
-(require 'use-package)
+(eval-when-compile
+  (require 'use-package))
 (setq use-package-always-ensure t)
 
-(use-package gcmh
-  :custom
-  (gcmh-high-cons-threshold 4000000000)
-  (gcmh-verbose t)
-  :init (gcmh-mode 1))
-
 (use-package exec-path-from-shell
-  :init (exec-path-from-shell-initialize))
+  :if (memq window-system '(mac ns))
+  :config (exec-path-from-shell-initialize))
 
 (use-package delight
   :config
@@ -102,10 +105,13 @@
 (use-package all-the-icons)
 
 (use-package dashboard
+  :if (< (length command-line-args) 2)
   :custom
   (dashboard-items '((projects . 5)
                      (recents . 15)))
   (dashboard-center-content t)
+  :hook
+  (after-init . dashboard-refresh-buffer)
   :config
   (dashboard-setup-startup-hook))
 
@@ -118,6 +124,7 @@
   (load-theme 'doom-one-light t)
   (doom-themes-visual-bell-config)
   (doom-themes-org-config)
+  (doom-themes-treemacs-config)
   (set-face-background 'show-paren-match nil)
   (set-face-attribute 'highlight nil
                       :foreground (face-foreground 'default)
@@ -126,9 +133,13 @@
 (use-package doom-modeline
   :config (doom-modeline-mode 1))
 
-(use-package dimmer
-  :custom (dimmer-fraction 0.3)
-  :config (dimmer-mode))
+(use-package solaire-mode
+  :custom (solaire-mode-remap-fringe nil)
+  :hook (((change-major-mode after-revert ediff-prepare-buffer) . turn-on-solaire-mode)
+         (minibuffer-setup . solaire-mode-in-minibuffer))
+  :config
+  (solaire-global-mode +1)
+  (solaire-mode-swap-bg))
 
 (use-package ace-window
   :custom
@@ -140,6 +151,45 @@
   (set-face-attribute 'aw-leading-char-face nil
                       :weight 'bold)
   :bind (("M-o" . ace-window)))
+
+(use-package treemacs
+  :custom
+  (treemacs-no-png-images nil)
+  (treemacs-width 40)
+  (treemacs-silent-refresh t)
+  (treemacs-silent-filewatch t)
+  (treemacs-file-event-delay 1000)
+  (treemacs-file-follow-delay 0.1)
+  (treemacs-fringe-indicator-mode nil)
+  :custom-face
+  (treemacs-root-face ((t (:height 1.0 :weight normal))))
+  :config
+  (treemacs-follow-mode t)
+  (treemacs-filewatch-mode t)
+  (pcase (cons (not (null (executable-find "git")))
+               (not (null (treemacs--find-python3))))
+    (`(t . t)
+     (treemacs-git-mode 'deferred))
+    (`(t . _)
+     (treemacs-git-mode 'simple)))
+  :bind
+  (:map global-map
+        ("M-0"       . treemacs-select-window)
+        ("C-x t 1"   . treemacs-delete-other-windows)
+        ("C-x t t"   . treemacs)
+        ("C-x t B"   . treemacs-bookmark)
+        ("C-x t C-t" . treemacs-find-file)
+        ("C-x t M-t" . treemacs-find-tag)))
+
+(use-package treemacs-projectile
+  :after treemacs projectile)
+
+(use-package treemacs-icons-dired
+  :after treemacs dired
+  :config (treemacs-icons-dired-mode))
+
+(use-package treemacs-magit
+  :after treemacs magit)
 
 (use-package dired-subtree
   :after dired
@@ -182,7 +232,7 @@
 
 (use-package paren-face
   :custom (paren-face-regexp "[][{}()]")
-  :init (global-paren-face-mode))
+  :config (global-paren-face-mode))
 
 (use-package smart-mode-line
   :config
@@ -191,7 +241,11 @@
 
 (use-package which-key
   :delight
-  :init (which-key-mode))
+  :defer 1
+  :config
+  (which-key-mode)
+  (setq which-key-idle-delay 0.4
+        which-key-idle-secondary-delay 0.4))
 
 (use-package ivy
   :delight
@@ -229,13 +283,13 @@
 
 (use-package company
   :delight
-  :init (global-company-mode)
   :custom
   (company-idle-delay 0.3)
   (company-minimum-prefix-length 2)
   (company-tooltip-align-annotations t)
   (company-selection-wrap-around t)
-  :bind (("TAB" . company-indent-or-complete-common)))
+  :bind (("TAB" . company-indent-or-complete-common))
+  :config (global-company-mode))
 
 (use-package company-flx
   :after company
@@ -249,11 +303,11 @@
 
 (use-package counsel-projectile
   :after counsel projectile
-  :init (counsel-projectile-mode))
+  :config (counsel-projectile-mode))
 
 (use-package column-enforce-mode
   :delight
-  :init (global-column-enforce-mode t))
+  :config (global-column-enforce-mode t))
 
 (use-package expand-region
   :bind
@@ -262,7 +316,7 @@
 
 (use-package hungry-delete
   :delight
-  :init (global-hungry-delete-mode))
+  :config (global-hungry-delete-mode))
 
 (use-package aggressive-indent
   :delight
@@ -271,7 +325,7 @@
 
 (use-package whitespace-cleanup-mode
   :delight
-  :init (global-whitespace-cleanup-mode))
+  :config (global-whitespace-cleanup-mode))
 
 (defun voxlet/add-space-after-insert (id action _context)
   (when (eq action 'insert)
@@ -284,14 +338,6 @@
 
 (use-package smartparens
   :delight
-  :init (smartparens-global-mode t)
-  :config
-  (require 'smartparens-config)
-  (sp-use-smartparens-bindings)
-  (sp-with-modes sp-lisp-modes
-    (sp-local-pair "(" nil :post-handlers '(:add voxlet/add-space-after-insert))
-    (sp-local-pair "[" nil :post-handlers '(:add voxlet/add-space-after-insert))
-    (sp-local-pair "{" nil :post-handlers '(:add voxlet/add-space-after-insert)))
   :custom
   (sp-highlight-pair-overlay nil)
   :bind
@@ -300,7 +346,17 @@
          ("M-<left>" . 'sp-backward-sexp)
          ("M-<up>" . 'sp-backward-up-sexp)
          ("M-<down>" . 'sp-up-sexp)))
-  :hook (clojure-mode . turn-on-smartparens-strict-mode))
+  :hook (clojure-mode . turn-on-smartparens-strict-mode)
+  :init
+  (smartparens-global-mode t)
+  :config
+  (require 'smartparens-config)
+  (sp-use-smartparens-bindings)
+  (sp-with-modes
+   sp-lisp-modes
+   (sp-local-pair "(" nil :post-handlers '(:add voxlet/add-space-after-insert))
+   (sp-local-pair "[" nil :post-handlers '(:add voxlet/add-space-after-insert))
+   (sp-local-pair "{" nil :post-handlers '(:add voxlet/add-space-after-insert))))
 
 (use-package lsp-mode
   :commands lsp
@@ -309,8 +365,8 @@
 (use-package lsp-ui)
 
 (use-package flycheck
-  :init (global-flycheck-mode)
-  :custom (sentence-end-double-space nil))
+  :custom (sentence-end-double-space nil)
+  :config (global-flycheck-mode))
 
 (use-package org)
 
@@ -354,6 +410,7 @@
   :hook (flycheck-mode . flycheck-clojure-setup))
 
 ;; JavaScript/TypeScript
+
 (use-package js2-mode
   :mode "\\.js\\'"
   :custom (js2-basic-offset 2)
@@ -405,14 +462,13 @@
   :hook (flycheck-mode . flycheck-rust-setup))
 
 (use-package yaml-mode
-  :init (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode)))
+  :config (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode)))
 
 (use-package plantuml-mode
   :custom (plantuml-jar-path "~/bin/plantuml.jar"))
 
-(let ((site-init "~/.emacs.d/site-init.el"))
-  (when (file-exists-p site-init)
-    (load-file site-init)))
+(use-package gcmh
+  :config (gcmh-mode 1))
 
 (provide 'init)
 ;;; init.el ends here

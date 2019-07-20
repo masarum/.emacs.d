@@ -1,9 +1,15 @@
+(custom-theme-set-faces
+ 'user
+ '(default ((t (:family "Victor Mono" :height 130 :weight demibold))))
+ '(fixed-pitch ((t (:family "Victor Mono" :height 130 :weight demibold))))
+ '(variable-pitch ((t (:family "Source Sans Pro" :height 130 :weight light)))))
+
 ;; (set-face-attribute 'default nil :font "InconsolataG 14")
-(set-face-attribute 'default nil :font "Victor Mono-13:demibold")
+;; (set-face-attribute 'default nil :family "Victor Mono" :height 130 :weight 'demibold)
 ;; (set-face-attribute 'default nil :font "IBM Plex Mono Light 14")
 ;; (setq-default line-spacing 0)
 
-(defun local-remap-faces-default-attributes ()
+(defun voxlet/remap-faces-default-attributes ()
   (mapc
    (lambda (face)
      ;; (when (eq (face-attribute face :weight) 'bold)
@@ -13,5 +19,5 @@
    (face-list)))
 
 (when (display-graphic-p)
-  (add-hook 'minibuffer-setup-hook 'local-remap-faces-default-attributes)
-  (add-hook 'change-major-mode-after-body-hook 'local-remap-faces-default-attributes))
+  (add-hook 'minibuffer-setup-hook 'voxlet/remap-faces-default-attributes)
+  (add-hook 'change-major-mode-after-body-hook 'voxlet/remap-faces-default-attributes))
