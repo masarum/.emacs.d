@@ -32,6 +32,9 @@
       window-divider-default-right-width 1)
 (window-divider-mode +1)
 
+(setq scroll-error-top-bottom t
+      scroll-preserve-screen-position t)
+
 (when (fboundp 'global-so-long-mode)
   (global-so-long-mode 1))
 (global-auto-revert-mode)
@@ -40,6 +43,13 @@
 (defvar show-paren-delay 0)
 (show-paren-mode 1)
 (delete-selection-mode 1)
+
+(defun voxlet/back-to-indentation-or-beginning ()
+  "back-to-indentation-or-beginning"
+  (interactive)
+  (if (= (point) (progn (back-to-indentation) (point)))
+      (beginning-of-line)))
+(global-set-key (kbd "C-a") 'voxlet/back-to-indentation-or-beginning)
 
 (global-set-key (kbd "C-z") 'undo)
 
@@ -134,7 +144,6 @@
   :config (doom-modeline-mode 1))
 
 (use-package solaire-mode
-  :custom (solaire-mode-remap-fringe nil)
   :hook (((change-major-mode after-revert ediff-prepare-buffer) . turn-on-solaire-mode)
          (minibuffer-setup . solaire-mode-in-minibuffer))
   :config
@@ -147,19 +156,20 @@
   (aw-dispatch-always t)
   (aw-background nil)
   (aw-scope 'frame)
+  (aw-ignore-on nil)
   :config
   (set-face-attribute 'aw-leading-char-face nil
                       :weight 'bold)
-  :bind (("M-o" . ace-window)))
+  :bind ("C-o" . ace-window))
 
 (use-package treemacs
   :custom
   (treemacs-no-png-images nil)
-  (treemacs-width 40)
+  (treemacs-width 35)
   (treemacs-silent-refresh t)
   (treemacs-silent-filewatch t)
   (treemacs-file-event-delay 1000)
-  (treemacs-file-follow-delay 0.1)
+  (treemacs-file-follow-delay 0.05)
   (treemacs-fringe-indicator-mode nil)
   :custom-face
   (treemacs-root-face ((t (:height 1.0 :weight normal))))
@@ -174,12 +184,15 @@
      (treemacs-git-mode 'simple)))
   :bind
   (:map global-map
-        ("M-0"       . treemacs-select-window)
+        ("C-x t o"       . treemacs-select-window)
         ("C-x t 1"   . treemacs-delete-other-windows)
         ("C-x t t"   . treemacs)
         ("C-x t B"   . treemacs-bookmark)
         ("C-x t C-t" . treemacs-find-file)
-        ("C-x t M-t" . treemacs-find-tag)))
+        ("C-x t M-t" . treemacs-find-tag))
+  (:map treemacs-mode-map
+        ("<prior>" . nil)
+        ("<next>" . nil)))
 
 (use-package treemacs-projectile
   :after treemacs projectile)
@@ -191,6 +204,9 @@
 (use-package treemacs-magit
   :after treemacs magit)
 
+(use-package lsp-treemacs
+  :after treemacs lsp-mode)
+
 (use-package dired-subtree
   :after dired
   :bind
@@ -199,25 +215,39 @@
         ("<backtab>" . dired-subtree-cycle))
   :hook (dired-mode . dired-hide-details-mode))
 
-(use-package buffer-flip
+(use-package centaur-tabs
+  ;; :demand
   :custom
-  (buffer-flip-skip-patterns '("^\\*helm\\b"
-                               "^\\*swiper\\*$"))
+  (centaur-tabs-style 'bar)
+  (centaur-tabs-height 28)
+  (centaur-tabs-set-icons t)
+  (centaur-tabs-set-bar 'over)
+  (centaur-tabs-set-close-button nil)
+  (centaur-tabs-set-modified-marker t)
+  (centaur-tabs-modified-marker "● ")
+  :custom-face
+  (centaur-tabs-default ((t (:inherit 'variable-pitch))))
+  (centaur-tabs-selected ((t (:inherit 'variable-pitch))))
+  (centaur-tabs-selected-modified ((t (:inherit 'variable-pitch))))
+  (centaur-tabs-unselected-modified ((t (:inherit 'variable-pitch))))
   :bind
-  (("C-S-<tab>" . buffer-flip)
-   ("C-S-<iso-lefttab>" . buffer-flip)
-   :map buffer-flip-map
-   ("C-S-<tab>" . buffer-flip-forward)
-   ("C-S-<iso-lefttab>" . buffer-flip-forward)
-   ("C-<tab>" . buffer-flip-backward)
-   ("C-g" . buffer-flip-abort)))
+  ("C-S-<tab>" . centaur-tabs-backward)
+  ("C-<tab>" . centaur-tabs-forward)
+  :hook
+  ((dashboard-mode dired-mode) . centaur-tabs-local-mode)
+  :config
+  (set-face-attribute 'centaur-tabs-unselected nil
+                      :inherit 'variable-pitch
+                      :foreground (doom-lighten
+                                   (face-foreground 'default) 0.5))
+  (centaur-tabs-group-by-projectile-project)
+  (centaur-tabs-enable-buffer-reordering)
+  (centaur-tabs-mode t))
 
-(use-package golden-ratio-scroll-screen
-  :custom
-  (golden-ratio-scroll-highlight-flag nil)
+(use-package view
   :bind
-  ([remap scroll-down-command] . golden-ratio-scroll-screen-down)
-  ([remap scroll-up-command] . golden-ratio-scroll-screen-up))
+  ("<prior>" . View-scroll-half-page-backward)
+  ("<next>" . View-scroll-half-page-forward))
 
 (use-package beacon
   :custom
@@ -257,8 +287,8 @@
                            (t . ivy--regex-fuzzy)))
   :config (ivy-mode)
   :bind
-  (("C-r" . ivy-resume)
-   ("C-x B" . ivy-switch-buffer-other-window)))
+  ("C-r" . ivy-resume)
+  ("C-x B" . ivy-switch-buffer-other-window))
 
 (use-package counsel
   :delight
@@ -274,8 +304,7 @@
 
 (use-package swiper
   :after ivy
-  :bind
-  (("C-s" . voxlet/swiper-isearch)))
+  :bind ("C-s" . voxlet/swiper-isearch))
 
 (use-package ivy-rich
   :custom (ivy-format-function #'ivy-format-function-line)
@@ -288,7 +317,7 @@
   (company-minimum-prefix-length 2)
   (company-tooltip-align-annotations t)
   (company-selection-wrap-around t)
-  :bind (("TAB" . company-indent-or-complete-common))
+  :bind ("TAB" . company-indent-or-complete-common)
   :config (global-company-mode))
 
 (use-package company-flx
@@ -299,7 +328,7 @@
   :delight '(:eval (concat " " (projectile-project-name)))
   :custom (projectile-completion-system 'ivy)
   :config (projectile-mode +1)
-  :bind-keymap ("M-p" . projectile-command-map))
+  :bind-keymap ("C-p" . projectile-command-map))
 
 (use-package counsel-projectile
   :after counsel projectile
@@ -309,10 +338,23 @@
   :delight
   :config (global-column-enforce-mode t))
 
+(use-package multiple-cursors
+  :demand
+  :bind
+  ("M-m" . mc/mark-all-dwim)
+  ("M-<up>" . mc/mark-previous-like-this)
+  ("M-<down>" . mc/mark-next-like-this)
+  ("M-<up>" . mc/mark-previous-like-this)
+  ("M-S-<down>" . mc/unmark-next-like-this)
+  ("M-S-<up>" . mc/unmark-previous-like-this)
+  ("C-x SPC" . set-rectangular-region-anchor)
+  :config
+  (set-face-attribute 'mc/cursor-bar-face nil :height 5))
+
 (use-package expand-region
   :bind
-  (("M-S-<up>" . 'er/expand-region)
-   ("M-S-<down>" . 'er/contract-region)))
+  ("C-S-<up>" . 'er/expand-region)
+  ("C-S-<down>" . 'er/contract-region))
 
 (use-package hungry-delete
   :delight
@@ -340,23 +382,18 @@
   :delight
   :custom
   (sp-highlight-pair-overlay nil)
-  :bind
-  (:map smartparens-mode-map
-        (("M-<right>" . 'sp-forward-sexp)
-         ("M-<left>" . 'sp-backward-sexp)
-         ("M-<up>" . 'sp-backward-up-sexp)
-         ("M-<down>" . 'sp-up-sexp)))
   :hook (clojure-mode . turn-on-smartparens-strict-mode)
+  :bind
+  ("C-<right>" . sp-forward-slurp-sexp)
+  ("C-<left>" . sp-forward-barf-sexp)
   :init
   (smartparens-global-mode t)
   :config
   (require 'smartparens-config)
-  (sp-use-smartparens-bindings)
-  (sp-with-modes
-   sp-lisp-modes
-   (sp-local-pair "(" nil :post-handlers '(:add voxlet/add-space-after-insert))
-   (sp-local-pair "[" nil :post-handlers '(:add voxlet/add-space-after-insert))
-   (sp-local-pair "{" nil :post-handlers '(:add voxlet/add-space-after-insert))))
+  (sp-with-modes sp-lisp-modes
+    (sp-local-pair "(" nil :post-handlers '(:add voxlet/add-space-after-insert))
+    (sp-local-pair "[" nil :post-handlers '(:add voxlet/add-space-after-insert))
+    (sp-local-pair "{" nil :post-handlers '(:add voxlet/add-space-after-insert))))
 
 (use-package lsp-mode
   :commands lsp
@@ -371,7 +408,7 @@
 (use-package org)
 
 (use-package magit
-  :bind (("C-x g")))
+  :bind ("C-x g"))
 
 ;; Clojure
 

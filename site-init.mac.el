@@ -2,7 +2,7 @@
  'user
  '(default ((t (:family "Victor Mono" :height 130 :weight demibold))))
  '(fixed-pitch ((t (:family "Victor Mono" :height 130 :weight demibold))))
- '(variable-pitch ((t (:family "Source Sans Pro" :height 130 :weight light)))))
+ '(variable-pitch ((t (:family "Source Sans Pro" :height 130 :weight normal)))))
 
 ;; (set-face-attribute 'default nil :font "InconsolataG 14")
 ;; (set-face-attribute 'default nil :family "Victor Mono" :height 130 :weight 'demibold)
