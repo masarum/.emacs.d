@@ -1,0 +1,7 @@
+.cache/
+custom.el
+elpa/
+projectile-bookmarks.eld
+recentf
+transient/
+.mc-lists.el

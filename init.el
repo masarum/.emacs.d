@@ -232,6 +232,7 @@
   (centaur-tabs-unselected-modified ((t (:inherit 'variable-pitch))))
   :bind
   ("C-S-<tab>" . centaur-tabs-backward)
+  ("C-S-<iso-lefttab>" . centaur-tabs-backward)
   ("C-<tab>" . centaur-tabs-forward)
   :hook
   ((dashboard-mode dired-mode) . centaur-tabs-local-mode)
