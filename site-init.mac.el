@@ -1,3 +1,5 @@
+(set-face-attribute 'default nil :family "Victor Mono" :height 130 :weight 'demibold)
+
 (custom-theme-set-faces
  'user
  '(default ((t (:family "Victor Mono" :height 130 :weight demibold))))
@@ -5,9 +7,11 @@
  '(variable-pitch ((t (:family "Source Sans Pro" :height 130 :weight normal)))))
 
 ;; (set-face-attribute 'default nil :font "InconsolataG 14")
-;; (set-face-attribute 'default nil :family "Victor Mono" :height 130 :weight 'demibold)
 ;; (set-face-attribute 'default nil :font "IBM Plex Mono Light 14")
 ;; (setq-default line-spacing 0)
+
+(set-fontset-font "fontset-default" nil
+                  (font-spec :size 13 :name "Victor Mono"))
 
 (defun voxlet/remap-faces-default-attributes ()
   (mapc

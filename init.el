@@ -11,6 +11,7 @@
 (load "~/.emacs.d/site-init.el" 'noerror)
 
 (prefer-coding-system 'utf-8)
+(setq tramp-default-method "ssh")
 
 (setq make-backup-files nil
       auto-save-default nil
@@ -73,6 +74,7 @@
 
 (electric-indent-mode -1)
 (add-hook 'after-change-major-mode-hook (lambda() (electric-indent-mode -1)))
+(define-key global-map (kbd "RET") 'newline-and-indent)
 
 (setq-default indent-tabs-mode nil)
 (setq tab-width 2)
@@ -111,6 +113,10 @@
   :config
   (delight '((eldoc-mode nil "eldoc")
 	     (whitespace-mode nil "whitespace"))))
+
+(use-package super-save
+  :config
+  (super-save-mode +1))
 
 (use-package all-the-icons)
 
@@ -160,7 +166,7 @@
   :config
   (set-face-attribute 'aw-leading-char-face nil
                       :weight 'bold)
-  :bind ("C-o" . ace-window))
+  :bind ("M-o" . ace-window))
 
 (use-package treemacs
   :custom
@@ -170,12 +176,13 @@
   (treemacs-silent-filewatch t)
   (treemacs-file-event-delay 1000)
   (treemacs-file-follow-delay 0.05)
-  (treemacs-fringe-indicator-mode nil)
   :custom-face
   (treemacs-root-face ((t (:height 1.0 :weight normal))))
   :config
+  (set-face-background 'hl-line (doom-darken (face-background 'default) 0.05))
   (treemacs-follow-mode t)
   (treemacs-filewatch-mode t)
+  (treemacs-fringe-indicator-mode nil)
   (pcase (cons (not (null (executable-find "git")))
                (not (null (treemacs--find-python3))))
     (`(t . t)
@@ -329,7 +336,7 @@
   :delight '(:eval (concat " " (projectile-project-name)))
   :custom (projectile-completion-system 'ivy)
   :config (projectile-mode +1)
-  :bind-keymap ("C-p" . projectile-command-map))
+  :bind-keymap ("M-p" . projectile-command-map))
 
 (use-package counsel-projectile
   :after counsel projectile
@@ -343,19 +350,21 @@
   :demand
   :bind
   ("M-m" . mc/mark-all-dwim)
-  ("M-<up>" . mc/mark-previous-like-this)
-  ("M-<down>" . mc/mark-next-like-this)
-  ("M-<up>" . mc/mark-previous-like-this)
-  ("M-S-<down>" . mc/unmark-next-like-this)
-  ("M-S-<up>" . mc/unmark-previous-like-this)
+  ("M-M" . mc/mark-more-like-this-extended)
+  ("C-<up>" . mc/mark-previous-like-this)
+  ("C-<down>" . mc/mark-next-like-this)
+  ("M-<up>" . mc/skip-to-previous-like-this)
+  ("M-<down>" . mc/skip-to-next-like-this)
+  ("C-S-<up>" . mc/unmark-next-like-this)
+  ("C-S-<down>" . mc/unmark-previous-like-this)
   ("C-x SPC" . set-rectangular-region-anchor)
   :config
   (set-face-attribute 'mc/cursor-bar-face nil :height 5))
 
 (use-package expand-region
   :bind
-  ("C-S-<up>" . 'er/expand-region)
-  ("C-S-<down>" . 'er/contract-region))
+  ("M-S-<up>" . 'er/expand-region)
+  ("M-S-<down>" . 'er/contract-region))
 
 (use-package hungry-delete
   :delight
@@ -412,6 +421,11 @@
   :bind ("C-x g"))
 
 ;; Clojure
+
+(use-package inf-clojure
+  :config
+  (setf inf-clojure-project-type "generic")
+  (setf inf-clojure-generic-cmd "joker"))
 
 (use-package clojure-mode
   :hook (clojure-mode . display-line-numbers-mode))
@@ -504,6 +518,13 @@
 
 (use-package plantuml-mode
   :custom (plantuml-jar-path "~/bin/plantuml.jar"))
+
+(use-package dockerfile-mode
+  :mode "Dockerfile\\'")
+
+(use-package docker
+  :ensure t
+  :bind ("C-c d" . docker))
 
 (use-package gcmh
   :config (gcmh-mode 1))
