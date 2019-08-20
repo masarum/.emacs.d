@@ -425,7 +425,8 @@
 (use-package inf-clojure
   :config
   (setf inf-clojure-project-type "generic")
-  (setf inf-clojure-generic-cmd "joker"))
+  (setf inf-clojure-generic-cmd "joker")
+  (defun inf-clojure--detect-repl-type (proc) 'joker))
 
 (use-package clojure-mode
   :hook (clojure-mode . display-line-numbers-mode))
