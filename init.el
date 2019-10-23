@@ -45,8 +45,12 @@
 (show-paren-mode 1)
 (delete-selection-mode 1)
 
+(setq undo-limit 8000000
+      undo-strong-limit 12000000
+      undo-outer-limit 12000000)
+
 (defun voxlet/back-to-indentation-or-beginning ()
-  "back-to-indentation-or-beginning"
+  "Back-to-indentation-or-beginning."
   (interactive)
   (if (= (point) (progn (back-to-indentation) (point)))
       (beginning-of-line)))
@@ -54,23 +58,38 @@
 
 (global-set-key (kbd "C-z") 'undo)
 
-(defun voxlet/pop-local-mark-ring ()
-  "Pop mark ring."
-  (interactive)
-  (set-mark-command t))
+(defun voxlet/marker-is-point-p (marker)
+  "Test if MARKER is current point."
+  (and (eq (marker-buffer marker) (current-buffer))
+       (= (marker-position marker) (point))))
 
-(defun voxlet/unpop-to-mark-command ()
-  "Unpop mark ring. Does nothing if mark ring is empty."
-  (interactive)
-  (when mark-ring
-    (setq mark-ring (cons (copy-marker (mark-marker)) mark-ring))
-    (set-marker (mark-marker) (car (last mark-ring)) (current-buffer))
-    (when (null (mark t)) (ding))
-    (setq mark-ring (nbutlast mark-ring))
-    (goto-char (marker-position (car (last mark-ring))))))
+(defun voxlet/push-mark-maybe ()
+  "Push mark onto `global-mark-ring' if mark head or tail is not current location."
+  (if (not global-mark-ring) (error "Global mark ring is empty")
+    (unless (or (voxlet/marker-is-point-p (car global-mark-ring))
+                (voxlet/marker-is-point-p (car (reverse global-mark-ring))))
+      (push-mark))))
 
-(global-set-key (kbd "C-,") 'voxlet/pop-local-mark-ring)
-(global-set-key (kbd "C-.") 'voxlet/unpop-to-mark-command)
+(defun voxlet/backward-global-mark ()
+  "Use `pop-global-mark', pushing current point if not on ring."
+  (interactive)
+  (voxlet/push-mark-maybe)
+  (when (voxlet/marker-is-point-p (car global-mark-ring))
+    (call-interactively 'pop-global-mark))
+  (call-interactively 'pop-global-mark))
+
+(defun voxlet/forward-global-mark ()
+  "Hack `pop-global-mark' to go in reverse, pushing current point if not on ring."
+  (interactive)
+  (voxlet/push-mark-maybe)
+  (setq global-mark-ring (nreverse global-mark-ring))
+  (when (voxlet/marker-is-point-p (car global-mark-ring))
+    (call-interactively 'pop-global-mark))
+  (call-interactively 'pop-global-mark)
+  (setq global-mark-ring (nreverse global-mark-ring)))
+
+(global-set-key (kbd "C-,") 'voxlet/backward-global-mark)
+(global-set-key (kbd "C-.") 'voxlet/forward-global-mark)
 
 (electric-indent-mode -1)
 (add-hook 'after-change-major-mode-hook (lambda() (electric-indent-mode -1)))
@@ -223,7 +242,6 @@
   :hook (dired-mode . dired-hide-details-mode))
 
 (use-package centaur-tabs
-  ;; :demand
   :custom
   (centaur-tabs-style 'bar)
   (centaur-tabs-height 28)
@@ -232,6 +250,7 @@
   (centaur-tabs-set-close-button nil)
   (centaur-tabs-set-modified-marker t)
   (centaur-tabs-modified-marker "● ")
+  (centaur-tabs-adjust-buffer-order t)
   :custom-face
   (centaur-tabs-default ((t (:inherit 'variable-pitch))))
   (centaur-tabs-selected ((t (:inherit 'variable-pitch))))
@@ -240,17 +259,19 @@
   :bind
   ("C-S-<tab>" . centaur-tabs-backward)
   ("C-S-<iso-lefttab>" . centaur-tabs-backward)
+  ("s-{" . centaur-tabs-backward)
   ("C-<tab>" . centaur-tabs-forward)
+  ("s-}" . centaur-tabs-forward)
   :hook
-  ((dashboard-mode dired-mode) . centaur-tabs-local-mode)
+  (dashboard-mode . centaur-tabs-local-mode)
   :config
   (set-face-attribute 'centaur-tabs-unselected nil
                       :inherit 'variable-pitch
                       :foreground (doom-lighten
                                    (face-foreground 'default) 0.5))
-  (centaur-tabs-group-by-projectile-project)
+  (centaur-tabs-mode t)
   (centaur-tabs-enable-buffer-reordering)
-  (centaur-tabs-mode t))
+  (centaur-tabs-group-by-projectile-project))
 
 (use-package view
   :bind
@@ -428,23 +449,6 @@
   (setf inf-clojure-generic-cmd "joker")
   (defun inf-clojure--detect-repl-type (proc) 'joker))
 
-(use-package clojure-mode
-  :hook (clojure-mode . display-line-numbers-mode))
-
-(use-package cider
-  ;;:pin melpa-stable
-  :delight " cider"
-  :custom
-  (cider-repl-pop-to-buffer-on-connect 'display-only)
-  (cider-font-lock-dynamically '(macro core function var))
-  (cider-overlays-use-font-lock t)
-  (cider-save-file-on-load t)
-  :hook
-  ((cider-repl-mode cider-mode) . cider-company-enable-fuzzy-completion)
-  (cider-mode . eldoc-mode)
-  :custom-face
-  (clojure-keyword-face ((t (:inherit font-lock-constant-face :slant italic)))))
-
 (use-package yasnippet
   :delight (yas-minor-mode))
 
@@ -461,6 +465,39 @@
 (use-package flycheck-clojure
   :after flycheck
   :hook (flycheck-mode . flycheck-clojure-setup))
+
+(use-package flycheck-joker)
+(use-package flycheck-clj-kondo)
+
+(use-package cider
+  ;;:pin melpa-stable
+  :delight " cider"
+  :custom
+  (cider-repl-pop-to-buffer-on-connect 'display-only)
+  (cider-font-lock-dynamically '(macro core function var))
+  (cider-overlays-use-font-lock t)
+  (cider-save-file-on-load t)
+  :hook
+  ((cider-repl-mode cider-mode) . cider-company-enable-fuzzy-completion)
+  (cider-mode . eldoc-mode)
+  ;; :custom-face
+  ;; (clojure-keyword-face ((t (:inherit font-lock-constant-face :slant italic))))
+  ;; :config
+  ;; (buffer-disable-undo "*cider-error*")
+  )
+
+(use-package clojure-mode
+  :hook (clojure-mode . display-line-numbers-mode)
+  :config
+  (require 'flycheck-joker)
+  (require 'flycheck-clj-kondo)
+  (dolist (checker '(clj-kondo-clj clj-kondo-cljs clj-kondo-cljc clj-kondo-edn))
+    (setq flycheck-checkers (cons checker (delq checker flycheck-checkers))))
+  (dolist (checkers '((clj-kondo-clj . clojure-joker)
+                      (clj-kondo-cljs . clojurescript-joker)
+                      (clj-kondo-cljc . clojure-joker)
+                      (clj-kondo-edn . edn-joker)))
+    (flycheck-add-next-checker (car checkers) (cons 'error (cdr checkers)))))
 
 ;; JavaScript/TypeScript
 
