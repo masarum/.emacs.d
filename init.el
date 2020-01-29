@@ -17,8 +17,8 @@
       auto-save-default nil
       create-lockfiles nil)
 
-(add-to-list 'default-frame-alist '(fullscreen . maximized))
-(add-hook 'window-setup-hook 'toggle-frame-fullscreen t)
+;; (add-to-list 'default-frame-alist '(fullscreen . maximized))
+;; (add-hook 'window-setup-hook 'toggle-frame-fullscreen t)
 (setq use-dialog-box nil)
 (tooltip-mode -1)
 (tool-bar-mode -1)
@@ -48,6 +48,8 @@
 (setq undo-limit 8000000
       undo-strong-limit 12000000
       undo-outer-limit 12000000)
+
+(setq dired-dwim-target t)
 
 (defun voxlet/back-to-indentation-or-beginning ()
   "Back-to-indentation-or-beginning."
@@ -95,8 +97,8 @@
 (add-hook 'after-change-major-mode-hook (lambda() (electric-indent-mode -1)))
 (define-key global-map (kbd "RET") 'newline-and-indent)
 
-(setq-default indent-tabs-mode nil)
-(setq tab-width 2)
+(setq-default indent-tabs-mode nil
+              tab-width 2)
 (defvar c-default-style "linux")
 (defvaralias 'c-basic-offset 'tab-width)
 
@@ -105,12 +107,14 @@
 (setq blink-cursor-blinks -1)
 
 ;; Packages
-
+(setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
 (require 'package)
+(assq-delete-all 'org package--builtins)
 (add-to-list 'package-archives
-	     '("melpa" . "https://melpa.org/packages/") t)
+	           '("melpa" . "https://melpa.org/packages/") t)
 (add-to-list 'package-archives
-	     '("melpa-stable" . "https://stable.melpa.org/packages/") t)
+	           '("melpa-stable" . "https://stable.melpa.org/packages/") t)
+(add-to-list 'package-archives '("org" . "https://orgmode.org/elpa/") t)
 (package-initialize)
 
 (unless package-archive-contents
@@ -123,6 +127,16 @@
 (eval-when-compile
   (require 'use-package))
 (setq use-package-always-ensure t)
+
+;;; Load org mode early to ensure that the orgmode ELPA version gets picked up,
+;;; not the shipped version
+(use-package org :pin org
+  :ensure org-plus-contrib
+  :custom
+  (org-support-shift-select t)
+  (org-replace-disputed-keys t)
+  (org-startup-truncated nil)
+  (org-startup-folded nil))
 
 (use-package exec-path-from-shell
   :if (memq window-system '(mac ns))
@@ -301,10 +315,12 @@
 (use-package which-key
   :delight
   :defer 1
-  :config
-  (which-key-mode)
-  (setq which-key-idle-delay 0.4
-        which-key-idle-secondary-delay 0.4))
+  :custom (which-key-idle-delay 0.01)
+  :config (which-key-mode))
+
+(use-package help-at-pt
+  :custom
+  (help-at-pt-timer-delay 1))
 
 (use-package ivy
   :delight
@@ -313,6 +329,7 @@
   (ivy-use-virtual-buffers t)
   (ivy-count-format "")
   (ivy-re-builders-alist '((swiper-isearch . ivy--regex-plus)
+                           (counsel-git-grep . ivy--regex-plus)
                            (t . ivy--regex-fuzzy)))
   :config (ivy-mode)
   :bind
@@ -342,7 +359,7 @@
 (use-package company
   :delight
   :custom
-  (company-idle-delay 0.3)
+  (company-idle-delay 0.1)
   (company-minimum-prefix-length 2)
   (company-tooltip-align-annotations t)
   (company-selection-wrap-around t)
@@ -434,12 +451,13 @@
 
 (use-package flycheck
   :custom (sentence-end-double-space nil)
-  :config (global-flycheck-mode))
-
-(use-package org)
+  :config
+  (global-flycheck-mode))
 
 (use-package magit
   :bind ("C-x g"))
+
+(use-package vterm)
 
 ;; Clojure
 
@@ -537,6 +555,10 @@
 (use-package prettier-js
   :hook ((json-mode js2-mode typescript-mode) . prettier-js-mode))
 
+(use-package add-node-modules-path
+  :hook ((json-mode js2-mode typescript-mode) . add-node-modules-path))
+
+
 ;; Rust
 
 (use-package toml-mode)
@@ -564,8 +586,8 @@
   :ensure t
   :bind ("C-c d" . docker))
 
-(use-package gcmh
-  :config (gcmh-mode 1))
+;; (use-package gcmh
+;;   :config (gcmh-mode 1))
 
 (provide 'init)
 ;;; init.el ends here
